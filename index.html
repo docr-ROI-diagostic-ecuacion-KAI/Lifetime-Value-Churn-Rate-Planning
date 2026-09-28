@@ -560,10 +560,13 @@ function reset(){state.spo=[];state.roi=[];state.rfm=[];state.joined=[];state.st
 
 
 const SOURCE_PILLS={rfm:'https://rfm-dinamico-git-main-doc-roi-s-projects.vercel.app/',spo:'https://doc-roi-procurement-compass-evidenc.vercel.app/#sec3'};
-function activateTab(name){
+function activateTab(name,shouldScroll=true){
   document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
-  window.scrollTo({top:document.querySelector('.labtabs').offsetTop-62,behavior:'smooth'});
+  if(shouldScroll){
+    const tabs=document.querySelector('.labtabs');
+    if(tabs) window.scrollTo({top:Math.max(0,tabs.offsetTop-62),behavior:'smooth'});
+  }
 }
 function setOutputReady(ready){
   const empty=$('outputEmpty'),readyEl=$('outputReady'); if(!empty||!readyEl)return;
@@ -607,7 +610,20 @@ $('headerLabBtn')?.addEventListener('click',()=>{activateTab('load');document.ge
 $('headerDemoBtn')?.addEventListener('click',loadDemoAndOutput);
 
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const href=a.getAttribute('href');if(!href||href==='#')return;const t=document.querySelector(href);if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}}));
-window.addEventListener('DOMContentLoaded',()=>{applySourceLinks();reset();updateSigmaPanel();activateTab('load');});
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+window.scrollTo(0,0);
+window.addEventListener('DOMContentLoaded',()=>{
+  applySourceLinks();
+  reset();
+  updateSigmaPanel();
+  activateTab('load',false);
+  if(location.hash){
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  window.scrollTo({top:0,left:0,behavior:'auto'});
+});
+window.addEventListener('load',()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+window.addEventListener('pageshow',()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
 </script>
 
 </body></html>
